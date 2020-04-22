@@ -20,9 +20,16 @@ def parse_brackets(word_list):
 			bracket += 1
 			output_file.write(' {')
 
-# original_file = Path(input("\nSpecify your file's location (folder/directory path including the file name)\nFor example (for Windows)- C:\\Users\\James\\Documents\\example.txt: "))
+# original_file = Path(input("\nWhat is your file's location? (folder/directory path including the file name)
+# \nFor example (for Windows)- C:\\Users\\James\\Documents\\example.txt: "))
 # This line is for testing purposes, so I can input the path directly into the code so I don't have to type it in when I run it
 original_file = Path('test.txt')
+
+# style function has not been implemented yet
+style = input("What coding style do you want? (c, j, p):\n\n"
+"C-Style (c) - Brackets in their own lines"
+"\nJava Style (j) - First bracket following text, second in it's own line"
+"\nPython Style (p) - All brackets following text\n\n"
 
 raw_text = original_file.read_text()
 original_list = raw_text.split('\n')
@@ -35,13 +42,9 @@ empty_lines = 0
 for x in range (0, len(original_list)):
 	if len(original_list[x]) != 0:
 		if '}' not in original_list[x] and '{' not in original_list[x]:
-			# print(no_spaces(original_list[x]))
 			output_file.write('\n' + '\t'*bracket + original_list[x].strip())
-			# print(no_spaces(original_list[x]))
 		else:
 			line_list = split(r"([{}])", original_list[x])
-			# print(line_list)
 			parse_brackets(line_list)
 	else:
 		empty_lines += 1
-		# output_file.write("\n")
