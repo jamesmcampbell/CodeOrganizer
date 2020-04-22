@@ -1,8 +1,10 @@
 from pathlib import Path
 from re import split
 
+bracket = 0
+empty_lines = 0
+
 def parse_brackets(word_list):
-	# line is an array of all the words in the given line
 	global bracket
 	global empty_lines
 
@@ -15,29 +17,33 @@ def parse_brackets(word_list):
 			# print(bracket)
 			if bracket != 0:
 				output_file.write("\n" *empty_lines)
-			output_file.write(' }')
+			output_file.write("\n"*second_bracket + ' '*abs(second_bracket-1) + '}')
 		elif '{' in word_list[x]:
 			bracket += 1
-			output_file.write(' {')
+			output_file.write("\n"*first_bracket + ' '*abs(first_bracket-1) + '{')
 
-# original_file = Path(input("\nWhat is your file's location? (folder/directory path including the file name)
-# \nFor example (for Windows)- C:\\Users\\James\\Documents\\example.txt: "))
-# This line is for testing purposes, so I can input the path directly into the code so I don't have to type it in when I run it
-original_file = Path('test.txt')
+original_file = Path(input("\nWhat is your file's location? (folder/directory path including the file name)"
+"\n\nFor example (for Windows)- C:\\Users\\James\\Documents\\example.txt\n\n"))
 
-# style function has not been implemented yet
-style = input("What coding style do you want? (c, j, p):\n\n"
+style = input("\nWhat coding style do you want? (c, j, p):\n\n"
 "C-Style (c) - Brackets in their own lines"
 "\nJava Style (j) - First bracket following text, second in it's own line"
-"\nPython Style (p) - All brackets following text\n\n"
+"\nPython Style (p) - All brackets following text\n\n")
+
+if style == "c":
+	first_bracket = 1
+	second_bracket = 1
+elif style == "j":
+	first_bracket = 0
+	second_bracket = 1
+elif style == "p":
+	first_bracket = 0
+	second_bracket = 0
 
 raw_text = original_file.read_text()
 original_list = raw_text.split('\n')
 
 output_file = open('new_' + original_file.name, 'w')
-
-bracket = 0
-empty_lines = 0
 
 for x in range (0, len(original_list)):
 	if len(original_list[x]) != 0:
