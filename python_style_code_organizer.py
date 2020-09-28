@@ -1,67 +1,64 @@
 from pathlib import Path
 from re import split
 
-bracket = 0
+indent = 0
 empty_lines = 0
 
-# this method is just for the first line of the file
-# without it an extra, empty line would be created at the start
-def first_line(original_list):
-	if len(original_list[0]) != 0:
-		# if neither brackets are in the list
-		if '{' not in original_list[0] and '}' not in original_list[0]:
-			output_file.write('\t'*bracket + original_list[0].strip())
-		#if a bracket is in the list
-		else:
-			line_list = split(r"([{}])", original_list[0])
-			parse_brackets(line_list)
-	else:
-		output_file.write('\n')
-
-# this method seperates brackets if there are multiple in 1 line
-def parse_brackets(line_list):
-	global bracket
+def write_to_file(original_list, x, new_file):
+	global indent
 	global empty_lines
 
-	#cycles through the line
-	for x in range(0, len(line_list)):
-		line_list[x] = str(line_list[x].strip())
-		# if neither brackets are in the list
-		if '{' not in line_list[x] and '}' not in line_list[x] and line_list[x] != '':
-			# simply rewrite the line
-			output_file.write('\n' + '\t'*bracket + line_list[x])
-		if line_list[x] == '}':
-			bracket -= 1
-			# if bracket != 0:
-				# output_file.write('\n'*empty_lines)
-			output_file.write(' }')
-		elif '{' in line_list[x]:
-			bracket += 1
-			output_file.write(' {')
+	# if neither brackets are in the list
+	if '{' not in original_list[x] and '}' not in original_list[x]:
+		# simply rewrite the line
+		new_file.write('\n'*empty_lines + '\n' + '\t'*indent + original_list[x].strip())
+		empty_lines = 0
+	# if a bracket is in the list
+	else:
+		# makes a list where each entry is of either one of the brackets or any other segments of text
+		line_list = split(r"([{}])", original_list[x])
+		#cycles through the line
+		for y in range(0, len(line_list)):
+			# this line removes spaces from around each segment of text in the line_list
+			# if the entry is only a space, it will become an empty entry, in which case it won't be rewritten
+			line_list[y] = str(line_list[y].strip())
+			# if the item in the list is not one of the brackets
+			if x == 0 and y == 0:
+				new_file.write(line_list[y])
+			elif '{' != line_list[y] and '}' != line_list[y] and line_list[y] != '':
+				# simply rewrite the line
+				new_file.write('\n'*empty_lines + '\n' + '\t'*indent + line_list[y])
+			elif '{' == line_list[y]:
+				indent += 1
+				new_file.write(' {')
+			elif '}' == line_list[y]:
+				indent -= 1
+				new_file.write(' }')
+		empty_lines = 0
 
 original_file = Path(input("\nWhat is your file's location? (folder/directory path including the file name)"
 "\n\nFor example (for Windows)- C:\\Users\\James\\Documents\\example.txt\n\n"))
 
+# stores all the text from the file
 raw_text = original_file.read_text()
-# a list of every line from the original file
+
+# makes a list where each entry is a line from the original file
 original_list = raw_text.split('\n')
 
-output_file = open('new_' + original_file.name, 'w')
+# this will be a new file containing the modified text
+# the name will be "new_" followed by the original file name
+new_file = open('new_' + original_file.name, 'w')
 
-# this method is just for the first line of the file
-# without it an extra, empty line would be created at the start
-first_line(original_list)
-
-for x in range (1, len(original_list)):
-	if len(original_list[x]) != 0:
-		# if neither brackets are in the list
-		if '{' not in original_list[x] and '}' not in original_list[x]:
-			# simply rewrite the line
-			output_file.write('\n' + '\t'*bracket + original_list[x].strip())
-		# if a bracket is in the list
+# this segment of code is for all the rest of the lines in the file
+for x in range (0, len(original_list)):
+	if indent == 0:
+		# this checks if the first line is empty or just spaces
+		if original_list[x].strip() == '':
+			new_file.write('\n')
 		else:
-			# makes a list of all words in the line that are not brackets
-			line_list = split(r"([{}])", original_list[x])
-			parse_brackets(line_list)
-	elif bracket != 0:
-		output_file.write('\n')
+			write_to_file(original_list, x, new_file)
+	else:
+		if original_list[x].strip() == '':
+			empty_lines += 1
+		else:
+			write_to_file(original_list, x, new_file)
